@@ -35,6 +35,7 @@ Currently implemented:
 
 Not implemented:
 
+- Documentation
 - Incoming channel leave messages
 - Connection errors/reconnecting.
 - Much other error handling
