@@ -88,7 +88,7 @@ async def test_context_manager_join(socket):
 @pytest.mark.asyncio
 async def test_send_message(socket, channel):
     send_future = asyncio.ensure_future(
-        channel.send(sentinel.event, sentinel.payload)
+        channel.push(sentinel.event, sentinel.payload)
     )
     await asyncio.sleep(0)
     assert socket.transport.outgoing.qsize() == 1
@@ -104,7 +104,7 @@ async def test_send_message(socket, channel):
 @pytest.mark.asyncio
 async def test_message_replies(socket, channel):
     sent_message, _ = await asyncio.gather(
-        channel.send(sentinel.event, sentinel.payload),
+        channel.push(sentinel.event, sentinel.payload),
         set_reply(socket, None, {'status': 'ok'})
     )
     response = await sent_message.response()

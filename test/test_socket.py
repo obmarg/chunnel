@@ -76,7 +76,7 @@ async def test_replies_routed_correctly(socket):
         sender = TestSender(sentinel.topic, sentinel.event, sentinel.payload)
         sender.set_reply(sentinel.resp_payload)
 
-        sent_message = await sender.send(socket)
+        sent_message = await sender.push(socket)
 
         assert await sent_message.response() == sentinel.resp_payload
 
