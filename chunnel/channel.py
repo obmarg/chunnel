@@ -54,9 +54,11 @@ class Channel:
         leave = await self.socket._send_message(
             self.topic, ChannelEvents.leave.value, self.params
         )
-        response = await leave.response()
-        if response['status'] != 'ok':
-            raise ChannelLeaveFailure()
+        try:
+            response = await leave.response()
+        except Exception as e:
+            # TODO: this needs some work.
+            raise ChannelLeaveFailure() from e
 
     async def push(self, event, payload):
         '''

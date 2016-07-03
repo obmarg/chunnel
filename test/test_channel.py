@@ -105,10 +105,10 @@ async def test_send_message(socket, channel):
 async def test_message_replies(socket, channel):
     sent_message, _ = await asyncio.gather(
         channel.push(sentinel.event, sentinel.payload),
-        set_reply(socket, None, {'status': 'ok'})
+        set_reply(socket, None, {'status': 'ok', 'response': 'abcd'})
     )
     response = await sent_message.response()
-    assert response == {'status': 'ok'}
+    assert response == 'abcd'
 
 
 @pytest.mark.asyncio

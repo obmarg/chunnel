@@ -74,11 +74,11 @@ async def test_sending_message(socket):
 async def test_replies_routed_correctly(socket):
     async with socket:
         sender = TestSender(sentinel.topic, sentinel.event, sentinel.payload)
-        sender.set_reply(sentinel.resp_payload)
+        sender.set_reply({'status': 'ok', 'response': sentinel.response})
 
-        sent_message = await sender.push(socket)
+        sent_message = await sender.send(socket)
 
-        assert await sent_message.response() == sentinel.resp_payload
+        assert await sent_message.response() == sentinel.response
 
 
 @pytest.mark.asyncio

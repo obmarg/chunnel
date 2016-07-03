@@ -143,7 +143,7 @@ class Socket:
             if message.event == ChannelEvents.reply.value:
                 if message.payload['status'] == 'ok':
                     self._response_futures[message.ref].set_result(
-                        message.payload['response']
+                        message.payload.get('response')
                     )
                 else:
                     # TODO: we can do better than this...
