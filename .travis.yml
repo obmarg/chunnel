@@ -3,13 +3,13 @@ python:
   - 3.5.0
   - 3.5.1
   - 3.5.2
-test_card:
-  - 0.1.1
+env:
+  - TEST_CARD_VER=0.1.1
 install:
   - pip install -r dev-requirements.txt
   - mkdir test_card
   - cd test_card
-  - wget https://github.com/obmarg/test_card/releases/download/v$TEST_CARD/test_card-$TEST_CARD-ubuntu.tar.gz -O test_card.tar.gz
+  - wget https://github.com/obmarg/test_card/releases/download/v${TEST_CARD_VER}/test_card-${TEST_CARD_VER}-ubuntu.tar.gz -O test_card.tar.gz
   - tar xzf test_card.tar.gz
   - PORT=4000 bin/test_card start
   - sleep 1
