@@ -1,11 +1,17 @@
 from unittest.mock import sentinel
 import asyncio
+import logging
 
 import pytest
 
 from chunnel.socket import Socket
 
 from .shared import TestTransport
+
+
+@pytest.fixture(autouse=True)
+def setup_logging():
+    logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.yield_fixture

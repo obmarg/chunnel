@@ -1,4 +1,3 @@
-from contextlib import suppress
 from concurrent.futures import FIRST_COMPLETED
 from urllib.parse import urlsplit
 import asyncio
@@ -9,12 +8,15 @@ from .transports import (
 )
 from .channel import Channel
 from .messages import SentMessage, ChannelEvents, IncomingMessage
+from .utils import get_unless_done, DONE
 
 __all__ = ['Socket']
 
 logger = logging.getLogger(__name__)
 
 
+# TODO: Should this be called Socket? Dunno if it matches up with phoenix too
+# well..
 class Socket:
     '''
     A connection to a phoenix server.
@@ -32,6 +34,7 @@ class Socket:
         'wss': WebsocketTransport
     }
 
+    # TODO: Should these parameters be passed to connect?  Maybe not..
     def __init__(self, url, params):
         self.url = url
         self.params = params
@@ -48,7 +51,7 @@ class Socket:
 
         transport_class = self.TRANSPORTS[urlsplit(self.url).scheme]
         self.transport = transport_class(
-            self.url, self._incoming, self._outgoing
+            self.url, self.params, self._incoming, self._outgoing
         )
         transport_task = asyncio.ensure_future(self.transport.run())
 
@@ -94,6 +97,7 @@ class Socket:
             # TODO: Do something more thorough here...
             self._transport_task.result()
 
+    # TODO: _push_message?
     async def _send_message(self, topic, event, payload, ref=None):
         '''
         Sends a message to the remote.
@@ -130,20 +134,21 @@ class Socket:
         them to an appropriate place.
         '''
         while True:
-            done, pending = await asyncio.wait(
-                [self._incoming.get(), self._done_recv],
-                return_when=FIRST_COMPLETED
+            message = await get_unless_done(
+                self._incoming.get(), self._done_recv
             )
-            if self._done_recv in done:
-                getter, = pending
-                getter.cancel()
+            if message is DONE:
                 break
-            getter, = done
-            message = getter.result()
             if message.event == ChannelEvents.reply.value:
-                self._response_futures[message.ref].set_result(
-                    message.payload
-                )
+                if message.payload['status'] == 'ok':
+                    self._response_futures[message.ref].set_result(
+                        message.payload['response']
+                    )
+                else:
+                    # TODO: we can do better than this...
+                    self._response_futures[message.ref].set_exception(
+                        Exception("Response not ok!")
+                    )
             else:
                 channel = self.channels.get(message.topic)
                 if channel:

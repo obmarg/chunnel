@@ -10,8 +10,9 @@ class TestTransport(BaseTransport):
     '''
     RESOLVE_READY = True
 
-    def __init__(self, url, incoming, outgoing):
+    def __init__(self, url, params, incoming, outgoing):
         self.url = url
+        self.params = params
         super().__init__(incoming, outgoing)
         self._future = asyncio.Future()
         if self.RESOLVE_READY:

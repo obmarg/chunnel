@@ -38,16 +38,7 @@ class ChannelEvents(Enum):
     leave = "phx_leave"
 
 
-# TODO: think about where this function belongs
-def load_incoming_message(message_data):
-    return IncomingMessage(
-        message_data['event'],
-        message_data['channel'],
-        message_data['payload'],
-        message_data.get('ref')
-    )
-
-
+# TODO: PushedMessage?
 class SentMessage:
     def __init__(self, response_future):
         self._response_future = response_future
@@ -58,13 +49,3 @@ class SentMessage:
         # I want?
         resp = await self._response_future
         return resp
-
-
-# TODO: think about where this function belongs
-def dump_outgoing_message(message):
-    return {
-        'event': message.event,
-        'topic': message.topic,
-        'ref': message.ref,
-        'payload': message.payload
-    }

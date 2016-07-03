@@ -1,10 +1,12 @@
+from urllib.parse import urlencode
 import asyncio
 import json
 import logging
+
 import websockets
 
-from .base import BaseTransport
-from ..messages import load_incoming_message, dump_outgoing_message
+from .base import BaseTransport, TransportMessage
+from ..utils import get_unless_done, DONE
 
 __all__ = ['WebsocketTransport']
 
@@ -15,12 +17,15 @@ class WebsocketTransport(BaseTransport):
     '''
     Implements the websocket transport for talking to phoenix servers.
     '''
-    def __init__(self, url, incoming_queue, outgoing_queue):
+    def __init__(self, url, params, incoming_queue, outgoing_queue):
         super().__init__(
             incoming_queue=incoming_queue, outgoing_queue=outgoing_queue
         )
-        self.url = url
+        qs_params = {'vsn': '1.0.0', **params}
+        self.url = url + '?' + urlencode(qs_params)
+        print(self.url)
         self.ready = asyncio.Future()
+        self._done = asyncio.Future()
 
     async def run(self):
         try:
@@ -38,24 +43,53 @@ class WebsocketTransport(BaseTransport):
 
             raise
 
+    async def stop(self):
+        self._done.set_result(True)
+
     async def _recv_loop(self, websocket):
         while True:
-            message_data = await websocket.recv()
+            message_data = await get_unless_done(websocket.recv(), self._done)
+            if message_data is DONE:
+                return
+
             logger.info("received: %s", message_data)
             # TODO: This needs updates.
-            message = load_incoming_message(json.loads(message_data))
+            message = _load_incoming_message(json.loads(message_data))
             await self.incoming.put(message)
             logger.info("sent")
 
     async def _send_loop(self, websocket):
         while True:
-            message = await self.outgoing.get()
+            message = await get_unless_done(self.outgoing.get(), self._done)
+            if message is DONE:
+                return
+
             logger.info("sending: %s", message)
             try:
                 # TODO: This needs updates.
-                message_data = json.dumps(dump_outgoing_message(message))
+                message_data = json.dumps(
+                    dump_outgoing_message(message.message)
+                )
                 await websocket.send(message_data)
                 message.sent.set_result(True)
             except Exception as e:
                 message.sent.set_exception(e)
             logger.info("sent")
+
+
+def _load_incoming_message(message_data):
+    return TransportMessage(
+        message_data['event'],
+        message_data['topic'],
+        message_data['payload'],
+        message_data.get('ref')
+    )
+
+
+def dump_outgoing_message(message):
+    return {
+        'event': message.event,
+        'topic': message.topic,
+        'ref': message.ref,
+        'payload': message.payload
+    }

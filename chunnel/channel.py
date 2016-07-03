@@ -39,12 +39,13 @@ class Channel:
         join = await self.socket._send_message(
             self.topic, ChannelEvents.join.value, self.params
         )
-        response = await join.response()
-        if response['status'] != 'ok':
-            # TODO: This exception needs more info...
-            raise ChannelJoinFailure()
+        try:
+            response = await join.response()
+        except Exception as e:
+            # TODO: this needs some work.
+            raise ChannelJoinFailure() from e
 
-        return response['response']
+        return response
 
     async def leave(self):
         '''
@@ -57,11 +58,11 @@ class Channel:
         if response['status'] != 'ok':
             raise ChannelLeaveFailure()
 
-    async def send(self, event, payload):
+    async def push(self, event, payload):
         '''
-        Sends a message to a channel.
+        Pushes a message to a channel.
 
-        :param event:    The event to send.
+        :param event:    The event to push.
         :param payload:  The payload for the event.
         '''
         msg = await self.socket._send_message(self.topic, event, payload)

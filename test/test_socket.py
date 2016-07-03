@@ -14,6 +14,7 @@ async def test_connecting(socket, mocker):
 
     connect_future = asyncio.ensure_future(socket.connect())
     await asyncio.sleep(0)
+    assert socket.transport.params == sentinel.connect_params
 
     assert socket.transport
     assert socket.transport.url == 'ws://localhost'
