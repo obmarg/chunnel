@@ -1,0 +1,7 @@
+language: python
+python:
+  - 3.5.0
+  - 3.5.1
+  - 3.5.2
+install: pip install -r dev-requirements.txt
+script: py.test --timeout=5
