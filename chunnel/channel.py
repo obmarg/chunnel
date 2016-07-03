@@ -68,6 +68,9 @@ class Channel:
         msg = await self.socket._send_message(self.topic, event, payload)
         return msg
 
+    # TODO: could be nice to just expose a "read only queue" under .incoming
+    # With get, get_nowait & an async iterator interface?
+    # TODO: Otherwise should maybe be called pull (to go with push)
     async def receive(self):
         msg = await self._incoming_messages.get()
         return msg

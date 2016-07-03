@@ -139,6 +139,7 @@ class Socket:
             )
             if message is DONE:
                 break
+            # TODO: Definitely need to handle phx_close...
             if message.event == ChannelEvents.reply.value:
                 if message.payload['status'] == 'ok':
                     self._response_futures[message.ref].set_result(
