@@ -43,3 +43,11 @@ Not implemented:
 - Probably other things
 
 Pull requests welcome.
+
+Thanks
+---
+
+Some thanks to:
+
+- `@ChaseGilliam` on Twitter for the name.
+- Various others for suggestions.
