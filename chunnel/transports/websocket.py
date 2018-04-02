@@ -52,11 +52,11 @@ class WebsocketTransport(BaseTransport):
             if message_data is DONE:
                 return
 
-            logger.info("received: %s", message_data)
+            logger.debug("received: %s", message_data)
             # TODO: This needs updates.
             message = _load_incoming_message(json.loads(message_data))
             await self.incoming.put(message)
-            logger.info("sent")
+            logger.debug("sent")
 
     async def _send_loop(self, websocket):
         while True:
@@ -64,7 +64,7 @@ class WebsocketTransport(BaseTransport):
             if message is DONE:
                 return
 
-            logger.info("sending: %s", message)
+            logger.debug("sending: %s", message)
             try:
                 # TODO: This needs updates.
                 message_data = json.dumps(
@@ -74,7 +74,7 @@ class WebsocketTransport(BaseTransport):
                 message.sent.set_result(True)
             except Exception as e:
                 message.sent.set_exception(e)
-            logger.info("sent")
+            logger.debug("sent")
 
 
 def _load_incoming_message(message_data):
