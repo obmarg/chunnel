@@ -8,11 +8,11 @@ Usage
 ---
 
 ```python
-from chunnel import Socket
+from chunnel.socket import Socket
 
 socket = Socket('ws://example.com/socket', params={'token': 'blah'})
 async with socket:
-    channel = socket.channel('room:lobby, {})
+    channel = socket.channel('room:lobby', {})
     await channel.join()
     incoming = await channel.receive()
     await incoming.reply({'blah': 'whatever'})
