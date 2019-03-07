@@ -1,13 +1,12 @@
-from concurrent.futures import FIRST_COMPLETED
-from urllib.parse import urlsplit
 import asyncio
 import logging
+from urllib.parse import urlsplit
 
+from .channel import Channel
+from .messages import SentMessage, ChannelEvents, IncomingMessage
 from .transports import (
     WebsocketTransport, TransportMessage, OutgoingTransportMessage
 )
-from .channel import Channel
-from .messages import SentMessage, ChannelEvents, IncomingMessage
 from .utils import get_unless_done, DONE
 
 __all__ = ['Socket']

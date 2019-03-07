@@ -1,8 +1,7 @@
-import gzip
-from urllib.parse import urlencode
 import asyncio
 import json
 import logging
+from urllib.parse import urlencode
 
 import websockets
 
@@ -21,6 +20,7 @@ class WebsocketTransport(BaseTransport):
     '''
     Implements the websocket transport for talking to phoenix servers.
     '''
+
     def __init__(self, url, params, incoming_queue, outgoing_queue, decode_func=None, encode_func=None):
         super().__init__(
             incoming_queue=incoming_queue, outgoing_queue=outgoing_queue
