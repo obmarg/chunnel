@@ -13,7 +13,7 @@ __all__ = ['WebsocketTransport']
 logger = logging.getLogger(__name__)
 
 DEFAULT_DECODE_FUNC = json.loads
-DEFAULT_ENCODE_FUNC = json.dump
+DEFAULT_ENCODE_FUNC = json.dumps
 
 
 class WebsocketTransport(BaseTransport):
