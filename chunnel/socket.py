@@ -52,7 +52,8 @@ class Socket:
 
         transport_class = self.TRANSPORTS[urlsplit(self.url).scheme]
         self.transport = transport_class(
-            self.url, self.params, self._incoming, self._outgoing, self.decode_func, self.encode_func
+            self.url, self.params, self._incoming, self._outgoing,
+            decode_func=self.decode_func, encode_func=self.encode_func
         )
         transport_task = asyncio.ensure_future(self.transport.run())
 
