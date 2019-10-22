@@ -4,4 +4,4 @@ pytest-mock==1.1
 pytest-asyncio==0.4.1
 pytest-timeout==1.0.0
 flake8
-requests==2.10.0
+requests==2.20.0
