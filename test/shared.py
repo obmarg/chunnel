@@ -10,7 +10,7 @@ class TestTransport(BaseTransport):
     '''
     RESOLVE_READY = True
 
-    def __init__(self, url, params, incoming, outgoing):
+    def __init__(self, url, params, incoming, outgoing, decode_func, encode_func):
         self.url = url
         self.params = params
         super().__init__(incoming, outgoing)

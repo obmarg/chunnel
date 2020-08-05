@@ -1,13 +1,12 @@
-from concurrent.futures import FIRST_COMPLETED
-from urllib.parse import urlsplit
 import asyncio
 import logging
+from urllib.parse import urlsplit
 
+from .channel import Channel
+from .messages import SentMessage, ChannelEvents, IncomingMessage
 from .transports import (
     WebsocketTransport, TransportMessage, OutgoingTransportMessage
 )
-from .channel import Channel
-from .messages import SentMessage, ChannelEvents, IncomingMessage
 from .utils import get_unless_done, DONE
 
 __all__ = ['Socket']
@@ -35,11 +34,13 @@ class Socket:
     }
 
     # TODO: Should these parameters be passed to connect?  Maybe not..
-    def __init__(self, url, params):
+    def __init__(self, url, params, decode_func=None, encode_func=None):
         self.url = url
         self.params = params
         self.connected = False
         self.channels = {}
+        self.decode_func = decode_func
+        self.encode_func = encode_func
         self._incoming = asyncio.Queue()
         self._outgoing = asyncio.Queue()
         self._ref = 1
@@ -51,7 +52,7 @@ class Socket:
 
         transport_class = self.TRANSPORTS[urlsplit(self.url).scheme]
         self.transport = transport_class(
-            self.url, self.params, self._incoming, self._outgoing
+            self.url, self.params, self._incoming, self._outgoing, self.decode_func, self.encode_func
         )
         transport_task = asyncio.ensure_future(self.transport.run())
 

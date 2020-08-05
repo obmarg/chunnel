@@ -1,7 +1,7 @@
-from urllib.parse import urlencode
 import asyncio
 import json
 import logging
+from urllib.parse import urlencode
 
 import websockets
 
@@ -12,12 +12,16 @@ __all__ = ['WebsocketTransport']
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_DECODE_FUNC = json.loads
+DEFAULT_ENCODE_FUNC = json.dumps
+
 
 class WebsocketTransport(BaseTransport):
     '''
     Implements the websocket transport for talking to phoenix servers.
     '''
-    def __init__(self, url, params, incoming_queue, outgoing_queue):
+
+    def __init__(self, url, params, incoming_queue, outgoing_queue, decode_func=None, encode_func=None):
         super().__init__(
             incoming_queue=incoming_queue, outgoing_queue=outgoing_queue
         )
@@ -26,6 +30,8 @@ class WebsocketTransport(BaseTransport):
         print(self.url)
         self.ready = asyncio.Future()
         self._done = asyncio.Future()
+        self.decode_func = decode_func or DEFAULT_DECODE_FUNC
+        self.encode_func = encode_func or DEFAULT_ENCODE_FUNC
 
     async def run(self):
         try:
@@ -54,7 +60,7 @@ class WebsocketTransport(BaseTransport):
 
             logger.debug("received: %s", message_data)
             # TODO: This needs updates.
-            message = _load_incoming_message(json.loads(message_data))
+            message = _load_incoming_message(self.decode_func(message_data))
             await self.incoming.put(message)
             logger.debug("sent")
 
@@ -67,7 +73,7 @@ class WebsocketTransport(BaseTransport):
             logger.debug("sending: %s", message)
             try:
                 # TODO: This needs updates.
-                message_data = json.dumps(
+                message_data = self.encode_func(
                     dump_outgoing_message(message.message)
                 )
                 await websocket.send(message_data)
